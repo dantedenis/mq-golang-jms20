@@ -13,8 +13,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ibm-messaging/mq-golang-jms20/jms20subset"
-	"github.com/ibm-messaging/mq-golang-jms20/mqjms"
+	"github.com/dantedenis/mq-golang-jms20/jms20subset"
+	"github.com/dantedenis/mq-golang-jms20/mqjms"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -61,7 +61,7 @@ func TestMsgTimeToLive(t *testing.T) {
 	msgBody := "Get me before I expire!"
 	context.CreateProducer().SetTimeToLive(1000).SendString(queue, msgBody)
 	time.Sleep(500 * time.Millisecond) // Go to sleep for 0.5s so the message is still present
-	rcvBody, rcvErr := consumer.ReceiveStringBodyNoWait()
+	rcvBody, rcvErr := consumer.ReceiveBytesBodyNoWait()
 	assert.Nil(t, rcvErr)
 	assert.NotNil(t, rcvBody)
 	assert.Equal(t, msgBody, *rcvBody)

@@ -13,7 +13,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ibm-messaging/mq-golang-jms20/mqjms"
+	"github.com/dantedenis/mq-golang-jms20/mqjms"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -104,7 +104,7 @@ func TestReceiveStringBodyWait(t *testing.T) {
 	}
 
 	// Check no message on the queue to start with
-	msg, err1 := consumer.ReceiveStringBodyNoWait()
+	msg, err1 := consumer.ReceiveBytesBodyNoWait()
 	assert.Nil(t, err1)
 	assert.Nil(t, msg)
 
@@ -113,7 +113,7 @@ func TestReceiveStringBodyWait(t *testing.T) {
 	// Since there is no message on the queue, the receiveWait call should
 	// wait for the requested period of time, before returning nil.
 	startTime := currentTimeMillis()
-	msg2, err2 := consumer.ReceiveStringBody(waitTime)
+	msg2, err2 := consumer.ReceiveBytesBody(waitTime)
 	endTime := currentTimeMillis()
 	assert.Nil(t, msg2)
 	assert.Nil(t, err2)
@@ -129,7 +129,7 @@ func TestReceiveStringBodyWait(t *testing.T) {
 	// With a message on the queue the receiveWait call should return immediately
 	// with the message.
 	startTime2 := currentTimeMillis()
-	msg3, err3 := consumer.ReceiveStringBody(waitTime)
+	msg3, err3 := consumer.ReceiveBytesBody(waitTime)
 	endTime2 := currentTimeMillis()
 	assert.Nil(t, err3)
 	assert.Equal(t, inputMsg, *msg3)

@@ -14,8 +14,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ibm-messaging/mq-golang-jms20/jms20subset"
-	"github.com/ibm-messaging/mq-golang-jms20/mqjms"
+	"github.com/dantedenis/mq-golang-jms20/jms20subset"
+	"github.com/dantedenis/mq-golang-jms20/mqjms"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -127,7 +127,7 @@ func TestLargeReceiveStringBodyTextMessage(t *testing.T) {
 
 	// This will fail because the default buffer size when receiving a
 	// message is 32kb.
-	_, errRcv := consumer.ReceiveStringBodyNoWait()
+	_, errRcv := consumer.ReceiveBytesBodyNoWait()
 	assert.NotNil(t, errRcv)
 	assert.Equal(t, "MQRC_TRUNCATED_MSG_FAILED", errRcv.GetReason())
 	assert.Equal(t, "2080", errRcv.GetErrorCode())
@@ -150,7 +150,7 @@ func TestLargeReceiveStringBodyTextMessage(t *testing.T) {
 		defer consumer2.Close()
 	}
 
-	rcvStr, errRcv2 := consumer2.ReceiveStringBodyNoWait()
+	rcvStr, errRcv2 := consumer2.ReceiveBytesBodyNoWait()
 	assert.Nil(t, errRcv2)
 	assert.Equal(t, &txtOver32kb, rcvStr)
 

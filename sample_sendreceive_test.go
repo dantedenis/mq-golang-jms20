@@ -13,7 +13,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/ibm-messaging/mq-golang-jms20/mqjms"
+	"github.com/dantedenis/mq-golang-jms20/mqjms"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -70,7 +70,7 @@ func TestSampleSendReceiveWithErrorHandling(t *testing.T) {
 		if errCons == nil {
 
 			// Receive a message from the queue and return the string from the message body
-			rcvBody, rcvErr := consumer.ReceiveStringBodyNoWait()
+			rcvBody, rcvErr := consumer.ReceiveBytesBodyNoWait()
 
 			if rcvErr != nil {
 				fmt.Println("Error received:")
@@ -79,7 +79,7 @@ func TestSampleSendReceiveWithErrorHandling(t *testing.T) {
 
 				// Successful creation of the Consumer
 				if rcvBody != nil {
-					fmt.Println("Received text string: " + *rcvBody)
+					fmt.Println("Received text string: " + string(*rcvBody))
 				} else {
 					fmt.Println("No message received")
 				}
@@ -134,7 +134,7 @@ func TestSampleSendReceiveWithLimitedErrorHandling(t *testing.T) {
 	}
 
 	// Receive a message from the queue and return the string from the message body
-	rcvBody, rcvErr := consumer.ReceiveStringBodyNoWait()
+	rcvBody, rcvErr := consumer.ReceiveBytesBodyNoWait()
 
 	if rcvErr != nil {
 		fmt.Println("Error received:")
@@ -142,7 +142,7 @@ func TestSampleSendReceiveWithLimitedErrorHandling(t *testing.T) {
 	}
 
 	if rcvBody != nil {
-		fmt.Println("Received text string: " + *rcvBody)
+		fmt.Println("Received text string: " + string(*rcvBody))
 	} else {
 		fmt.Println("No message received")
 	}
@@ -182,7 +182,7 @@ func TestReceiveNoWaitWithoutMessage(t *testing.T) {
 		defer consumer.Close()
 	}
 
-	rcvBody, rcvErr := consumer.ReceiveStringBodyNoWait()
+	rcvBody, rcvErr := consumer.ReceiveBytesBodyNoWait()
 
 	if rcvErr != nil {
 
@@ -194,7 +194,7 @@ func TestReceiveNoWaitWithoutMessage(t *testing.T) {
 		// No error on the receive, so we can check for the message.
 		assert.Nil(t, rcvBody)
 		if rcvBody != nil {
-			fmt.Println("Received unexpected message: " + *rcvBody)
+			fmt.Println("Received unexpected message: " + string(*rcvBody))
 		}
 
 	}

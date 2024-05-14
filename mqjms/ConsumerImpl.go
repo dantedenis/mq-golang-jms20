@@ -12,13 +12,12 @@ package mqjms
 import (
 	"errors"
 	"fmt"
+	"github.com/dantedenis/mq-golang-jms20/jms20subset"
+	"github.com/ibm-messaging/mq-golang/v5/ibmmq"
 	"runtime"
 	"strconv"
 	"strings"
 	"sync"
-
-	"github.com/ibm-messaging/mq-golang-jms20/jms20subset"
-	ibmmq "github.com/ibm-messaging/mq-golang/v5/ibmmq"
 )
 
 // ConsumerImpl defines a struct that contains the necessary objects for
@@ -27,6 +26,8 @@ type ConsumerImpl struct {
 	ctx      ContextImpl
 	qObject  ibmmq.MQObject
 	selector string
+
+	buffer *[]byte
 }
 
 // ReceiveNoWait implements the IBM MQ logic necessary to receive a message from
@@ -37,6 +38,10 @@ func (consumer ConsumerImpl) ReceiveNoWait() (jms20subset.Message, jms20subset.J
 	gmo := ibmmq.NewMQGMO()
 	return consumer.receiveInternal(gmo)
 
+}
+
+func (consumer ConsumerImpl) Release() {
+	consumer.ctx.pool.Put(consumer.buffer)
 }
 
 // Receive with waitMillis returns a message if one is available, or otherwise
@@ -71,13 +76,7 @@ func (consumer ConsumerImpl) receiveInternal(gmo *ibmmq.MQGMO) (jms20subset.Mess
 
 	getmqmd := ibmmq.NewMQMD()
 
-	myBufferSize := 32768
-
-	if consumer.ctx.receiveBufferSize > 0 {
-		myBufferSize = consumer.ctx.receiveBufferSize
-	}
-
-	buffer := make([]byte, myBufferSize)
+	consumer.buffer = consumer.ctx.pool.Get().(*[]byte)
 
 	// Calculate the syncpoint value
 	syncpointSetting := ibmmq.MQGMO_NO_SYNCPOINT
@@ -103,7 +102,7 @@ func (consumer ConsumerImpl) receiveInternal(gmo *ibmmq.MQGMO) (jms20subset.Mess
 	}
 
 	// Use the prepared objects to ask for a message from the queue.
-	datalen, err := consumer.qObject.Get(getmqmd, gmo, buffer)
+	datalen, err := consumer.qObject.Get(getmqmd, gmo, *consumer.buffer)
 
 	if err == nil {
 
@@ -115,41 +114,16 @@ func (consumer ConsumerImpl) receiveInternal(gmo *ibmmq.MQGMO) (jms20subset.Mess
 		// Message received successfully (without error).
 		// Determine on the basis of the format field what sort of message to create.
 
-		if getmqmd.Format == ibmmq.MQFMT_STRING {
+		trimmedBuffer := (*consumer.buffer)[0:datalen]
 
-			var msgBodyStr *string
-
-			if datalen > 0 {
-				strContent := string(buffer[:datalen])
-				msgBodyStr = &strContent
-			}
-
-			msg = &TextMessageImpl{
-				bodyStr: msgBodyStr,
-				MessageImpl: MessageImpl{
-					mqmd:      getmqmd,
-					msgHandle: &thisMsgHandle,
-					ctxLock:   consumer.ctx.ctxLock,
-				},
-			}
-
-		} else {
-
-			if datalen == 0 {
-				buffer = []byte{}
-			}
-
-			trimmedBuffer := buffer[0:datalen]
-
-			// Not a string, so fall back to BytesMessage
-			msg = &BytesMessageImpl{
-				bodyBytes: &trimmedBuffer,
-				MessageImpl: MessageImpl{
-					mqmd:      getmqmd,
-					msgHandle: &thisMsgHandle,
-					ctxLock:   consumer.ctx.ctxLock,
-				},
-			}
+		// Not a string, so fall back to BytesMessage
+		msg = &BytesMessageImpl{
+			bodyBytes: &trimmedBuffer,
+			MessageImpl: MessageImpl{
+				mqmd:      getmqmd,
+				msgHandle: &thisMsgHandle,
+				ctxLock:   consumer.ctx.ctxLock,
+			},
 		}
 
 	} else {
@@ -404,6 +378,8 @@ func applySelector(selector string, getmqmd *ibmmq.MQMD, gmo *ibmmq.MQGMO) error
 // Close closes the JMSConsumer, releasing any resources that were allocated on
 // behalf of that consumer.
 func (consumer ConsumerImpl) Close() {
+
+	consumer.Release()
 
 	if (ibmmq.MQObject{}) != consumer.qObject {
 

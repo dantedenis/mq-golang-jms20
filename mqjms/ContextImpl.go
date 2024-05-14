@@ -14,7 +14,7 @@ import (
 	"strconv"
 	"sync"
 
-	"github.com/ibm-messaging/mq-golang-jms20/jms20subset"
+	"github.com/dantedenis/mq-golang-jms20/jms20subset"
 	ibmmq "github.com/ibm-messaging/mq-golang/v5/ibmmq"
 )
 
@@ -27,6 +27,8 @@ type ContextImpl struct {
 	receiveBufferSize int
 	sendCheckCount    int
 	sendCheckCountInc *int // Internal counter to keep track of async-put messages sent
+
+	pool *sync.Pool
 }
 
 // CreateQueue implements the logic necessary to create a provider-specific
@@ -99,7 +101,6 @@ func (ctx ContextImpl) CreateConsumerWithSelector(dest jms20subset.Destination, 
 	qObject, err := ctx.qMgr.Open(mqod, openOptions)
 
 	if err == nil {
-
 		// Success - store the necessary objects away for later use to receive
 		// messages.
 		consumer = ConsumerImpl{

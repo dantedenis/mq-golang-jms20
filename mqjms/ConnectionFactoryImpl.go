@@ -13,7 +13,7 @@ import (
 	"strconv"
 	"sync"
 
-	"github.com/ibm-messaging/mq-golang-jms20/jms20subset"
+	"github.com/dantedenis/mq-golang-jms20/jms20subset"
 	ibmmq "github.com/ibm-messaging/mq-golang/v5/ibmmq"
 )
 
@@ -161,6 +161,10 @@ func (cf ConnectionFactoryImpl) CreateContextWithSessionMode(sessionMode int, mq
 			receiveBufferSize: cf.ReceiveBufferSize,
 			sendCheckCount:    cf.SendCheckCount,
 			sendCheckCountInc: countInc,
+			pool: &sync.Pool{New: func() any {
+				buf := make([]byte, 0, cf.ReceiveBufferSize)
+				return &buf
+			}},
 		}
 
 	} else {

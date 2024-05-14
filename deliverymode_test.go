@@ -13,8 +13,8 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/ibm-messaging/mq-golang-jms20/jms20subset"
-	"github.com/ibm-messaging/mq-golang-jms20/mqjms"
+	"github.com/dantedenis/mq-golang-jms20/jms20subset"
+	"github.com/dantedenis/mq-golang-jms20/mqjms"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -45,11 +45,11 @@ func TestDeliveryMode(t *testing.T) {
 		defer consumer.Close()
 	}
 
-	expectedNilMsg, rcvErr := consumer.ReceiveStringBodyNoWait()
+	expectedNilMsg, rcvErr := consumer.ReceiveBytesBodyNoWait()
 	assert.Nil(t, rcvErr)
 	assert.Nil(t, expectedNilMsg)
 	if expectedNilMsg != nil {
-		fmt.Println("Unexpected message with body: " + *expectedNilMsg)
+		fmt.Println("Unexpected message with body: " + string(*expectedNilMsg))
 	}
 
 	// Check the default behaviour if you don't set anything, which is that

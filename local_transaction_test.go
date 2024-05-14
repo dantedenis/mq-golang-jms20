@@ -12,9 +12,9 @@ package main
 import (
 	"testing"
 
-	"github.com/ibm-messaging/mq-golang-jms20/jms20subset"
+	"github.com/dantedenis/mq-golang-jms20/jms20subset"
 
-	"github.com/ibm-messaging/mq-golang-jms20/mqjms"
+	"github.com/dantedenis/mq-golang-jms20/mqjms"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -63,7 +63,7 @@ func TestPutTransaction(t *testing.T) {
 	bodyTxt := "untransacted-put"
 	errSend := untransactedProducer.SendString(unQueue, bodyTxt)
 	assert.Nil(t, errSend)
-	rcvBody, errRcv := untransactedConsumer.ReceiveStringBodyNoWait()
+	rcvBody, errRcv := untransactedConsumer.ReceiveBytesBodyNoWait()
 	assert.Nil(t, errRcv)
 	assert.Equal(t, bodyTxt, *rcvBody)
 
@@ -75,20 +75,20 @@ func TestPutTransaction(t *testing.T) {
 	assert.Nil(t, errSend)
 	errSend = transactedProducer.SendString(trQueue, bodyTxt2)
 	assert.Nil(t, errSend)
-	rcvBody, errRcv = untransactedConsumer.ReceiveStringBodyNoWait()
+	rcvBody, errRcv = untransactedConsumer.ReceiveBytesBodyNoWait()
 	assert.Nil(t, errRcv)
 	assert.Nil(t, rcvBody) // Expect nil here - message should not have been received.
 
 	// Commit and messages should now be available (in order)
 	cxErr := transactedContext.Commit()
 	assert.Nil(t, cxErr)
-	rcvBody, errRcv = untransactedConsumer.ReceiveStringBodyNoWait()
+	rcvBody, errRcv = untransactedConsumer.ReceiveBytesBodyNoWait()
 	assert.Nil(t, errRcv)
 	assert.Equal(t, bodyTxt1, *rcvBody)
-	rcvBody, errRcv = untransactedConsumer.ReceiveStringBodyNoWait()
+	rcvBody, errRcv = untransactedConsumer.ReceiveBytesBodyNoWait()
 	assert.Nil(t, errRcv)
 	assert.Equal(t, bodyTxt2, *rcvBody)
-	rcvBody, errRcv = untransactedConsumer.ReceiveStringBodyNoWait()
+	rcvBody, errRcv = untransactedConsumer.ReceiveBytesBodyNoWait()
 	assert.Nil(t, errRcv)
 	assert.Nil(t, rcvBody) // Only expected two messages
 
@@ -99,17 +99,17 @@ func TestPutTransaction(t *testing.T) {
 	assert.Nil(t, errSend)
 	errSend = transactedProducer.SendString(trQueue, bodyTxt2)
 	assert.Nil(t, errSend)
-	rcvBody, errRcv = untransactedConsumer.ReceiveStringBodyNoWait()
+	rcvBody, errRcv = untransactedConsumer.ReceiveBytesBodyNoWait()
 	assert.Nil(t, errRcv)
 	assert.Nil(t, rcvBody)
 	rbErr := transactedContext.Rollback() // Undo the messages
 	assert.Nil(t, rbErr)
-	rcvBody, errRcv = untransactedConsumer.ReceiveStringBodyNoWait()
+	rcvBody, errRcv = untransactedConsumer.ReceiveBytesBodyNoWait()
 	assert.Nil(t, errRcv)
 	assert.Nil(t, rcvBody)
 	cxErr = transactedContext.Commit() // Should no longer be under the transaction
 	assert.Nil(t, cxErr)
-	rcvBody, errRcv = untransactedConsumer.ReceiveStringBodyNoWait()
+	rcvBody, errRcv = untransactedConsumer.ReceiveBytesBodyNoWait()
 	assert.Nil(t, errRcv)
 	assert.Nil(t, rcvBody)
 
@@ -119,10 +119,10 @@ func TestPutTransaction(t *testing.T) {
 	errSend = transactedProducer.SendString(trQueue, "orphan2")
 	assert.Nil(t, errSend)
 	transactedContext.Close()
-	rcvBody, errRcv = untransactedConsumer.ReceiveStringBodyNoWait()
+	rcvBody, errRcv = untransactedConsumer.ReceiveBytesBodyNoWait()
 	assert.Nil(t, errRcv)
 	assert.Nil(t, rcvBody)
-	rcvBody, errRcv = untransactedConsumer.ReceiveStringBodyNoWait()
+	rcvBody, errRcv = untransactedConsumer.ReceiveBytesBodyNoWait()
 	assert.Nil(t, errRcv)
 	assert.Nil(t, rcvBody)
 
@@ -180,10 +180,10 @@ func TestGetTransaction(t *testing.T) {
 	bodyTxt := "untransacted-get"
 	errSend := untransactedProducer.SendString(unQueue, bodyTxt)
 	assert.Nil(t, errSend)
-	rcvBody, errRcv := untransactedConsumer.ReceiveStringBodyNoWait()
+	rcvBody, errRcv := untransactedConsumer.ReceiveBytesBodyNoWait()
 	assert.Nil(t, errRcv)
 	assert.Equal(t, bodyTxt, *rcvBody)
-	rcvBody, errRcv = transactedConsumer.ReceiveStringBodyNoWait()
+	rcvBody, errRcv = transactedConsumer.ReceiveBytesBodyNoWait()
 	assert.Nil(t, errRcv)
 	assert.Nil(t, rcvBody) // Has been consumed by the untransacted consumer
 
@@ -195,34 +195,34 @@ func TestGetTransaction(t *testing.T) {
 	errSend = untransactedProducer.SendString(unQueue, bodyTxt2)
 	assert.Nil(t, errSend)
 
-	rcvBody, errRcv = transactedConsumer.ReceiveStringBodyNoWait()
+	rcvBody, errRcv = transactedConsumer.ReceiveBytesBodyNoWait()
 	assert.Nil(t, errRcv)
 	assert.Equal(t, bodyTxt1, *rcvBody)
-	rcvBody, errRcv = transactedConsumer.ReceiveStringBodyNoWait()
+	rcvBody, errRcv = transactedConsumer.ReceiveBytesBodyNoWait()
 	assert.Nil(t, errRcv)
 	assert.Equal(t, bodyTxt2, *rcvBody)
 
-	rcvBody, errRcv = untransactedConsumer.ReceiveStringBodyNoWait()
+	rcvBody, errRcv = untransactedConsumer.ReceiveBytesBodyNoWait()
 	assert.Nil(t, errRcv)
 	assert.Nil(t, rcvBody) // Message is not available (consumed pending transaction)
-	rcvBody, errRcv = untransactedConsumer.ReceiveStringBodyNoWait()
+	rcvBody, errRcv = untransactedConsumer.ReceiveBytesBodyNoWait()
 	assert.Nil(t, errRcv)
 	assert.Nil(t, rcvBody)
 
 	// rollback, messages reappear
 	rbErr := transactedContext.Rollback() // puts the two messages back on the queue
 	assert.Nil(t, rbErr)
-	rcvBody, errRcv = untransactedConsumer.ReceiveStringBodyNoWait()
+	rcvBody, errRcv = untransactedConsumer.ReceiveBytesBodyNoWait()
 	assert.Nil(t, errRcv)
 	assert.Equal(t, bodyTxt1, *rcvBody)
 
 	// get the second reappeared message with transaction, commit, not available
-	rcvBody, errRcv = transactedConsumer.ReceiveStringBodyNoWait()
+	rcvBody, errRcv = transactedConsumer.ReceiveBytesBodyNoWait()
 	assert.Nil(t, errRcv)
 	assert.Equal(t, bodyTxt2, *rcvBody)
 	cxErr := transactedContext.Commit() // commit the consumption of the one message.
 	assert.Nil(t, cxErr)
-	rcvBody, errRcv = untransactedConsumer.ReceiveStringBodyNoWait()
+	rcvBody, errRcv = untransactedConsumer.ReceiveBytesBodyNoWait()
 	assert.Nil(t, errRcv)
 	assert.Nil(t, rcvBody) // No message should be available
 
@@ -230,14 +230,14 @@ func TestGetTransaction(t *testing.T) {
 	bodyTxt3 := "transacted-get-3"
 	errSend = untransactedProducer.SendString(unQueue, bodyTxt3)
 	assert.Nil(t, errSend)
-	rcvBody, errRcv = transactedConsumer.ReceiveStringBodyNoWait()
+	rcvBody, errRcv = transactedConsumer.ReceiveBytesBodyNoWait()
 	assert.Nil(t, errRcv)
 	assert.Equal(t, bodyTxt3, *rcvBody)
-	rcvBody, errRcv = untransactedConsumer.ReceiveStringBodyNoWait()
+	rcvBody, errRcv = untransactedConsumer.ReceiveBytesBodyNoWait()
 	assert.Nil(t, errRcv)
 	assert.Nil(t, rcvBody)    // message not available
 	transactedContext.Close() // causes rollback
-	rcvBody, errRcv = untransactedConsumer.ReceiveStringBodyNoWait()
+	rcvBody, errRcv = untransactedConsumer.ReceiveBytesBodyNoWait()
 	assert.Nil(t, errRcv)
 	assert.Equal(t, bodyTxt3, *rcvBody) // message now available
 
@@ -315,10 +315,10 @@ func TestPutGetTransaction(t *testing.T) {
 	}
 
 	// First check that both queues are empty
-	rcvBody, errRcv := untransactedReqConsumer.ReceiveStringBodyNoWait()
+	rcvBody, errRcv := untransactedReqConsumer.ReceiveBytesBodyNoWait()
 	assert.Nil(t, errRcv)
 	assert.Nil(t, rcvBody)
-	rcvBody, errRcv = untransactedReplyConsumer.ReceiveStringBodyNoWait()
+	rcvBody, errRcv = untransactedReplyConsumer.ReceiveBytesBodyNoWait()
 	assert.Nil(t, errRcv)
 	assert.Nil(t, rcvBody)
 
@@ -326,14 +326,14 @@ func TestPutGetTransaction(t *testing.T) {
 	msgBody := "putget-transaction"
 	errSend := transactedReqProducer.SendString(trReqQueue, msgBody)
 	assert.Nil(t, errSend)
-	rcvBody, errRcv = untransactedReqConsumer.ReceiveStringBodyNoWait()
+	rcvBody, errRcv = untransactedReqConsumer.ReceiveBytesBodyNoWait()
 	assert.Nil(t, errRcv)
 	assert.Nil(t, rcvBody)                    // Not yet visible for consumption
 	cxErr := senderTransactedContext.Commit() // Make the message visible
 	assert.Nil(t, cxErr)
 
 	// get message under transaction, put reply message to different queue
-	rcvBody, errRcv = transactedReqConsumer.ReceiveStringBodyNoWait()
+	rcvBody, errRcv = transactedReqConsumer.ReceiveBytesBodyNoWait()
 	assert.Nil(t, errRcv)
 	assert.Equal(t, msgBody, *rcvBody)
 	replyMsgBody := "putget-transaction-reply"
@@ -341,20 +341,20 @@ func TestPutGetTransaction(t *testing.T) {
 	assert.Nil(t, errSend)
 
 	// neither request nor reply message is available
-	rcvBody, errRcv = untransactedReqConsumer.ReceiveStringBodyNoWait()
+	rcvBody, errRcv = untransactedReqConsumer.ReceiveBytesBodyNoWait()
 	assert.Nil(t, errRcv)
 	assert.Nil(t, rcvBody)
-	rcvBody, errRcv = untransactedReplyConsumer.ReceiveStringBodyNoWait()
+	rcvBody, errRcv = untransactedReplyConsumer.ReceiveBytesBodyNoWait()
 	assert.Nil(t, errRcv)
 	assert.Nil(t, rcvBody)
 
 	// rollback; request message is available, reply message is not
 	rbErr := transactedContext.Rollback()
 	assert.Nil(t, rbErr)
-	rcvBody, errRcv = untransactedReqConsumer.ReceiveStringBodyNoWait()
+	rcvBody, errRcv = untransactedReqConsumer.ReceiveBytesBodyNoWait()
 	assert.Nil(t, errRcv)
 	assert.Equal(t, msgBody, *rcvBody)
-	rcvBody, errRcv = untransactedReplyConsumer.ReceiveStringBodyNoWait()
+	rcvBody, errRcv = untransactedReplyConsumer.ReceiveBytesBodyNoWait()
 	assert.Nil(t, errRcv)
 	assert.Nil(t, rcvBody)
 
@@ -366,7 +366,7 @@ func TestPutGetTransaction(t *testing.T) {
 	assert.Nil(t, cxErr)
 
 	// (again) get message under transaction, put reply message to the other queue
-	rcvBody, errRcv = transactedReqConsumer.ReceiveStringBodyNoWait()
+	rcvBody, errRcv = transactedReqConsumer.ReceiveBytesBodyNoWait()
 	assert.Nil(t, errRcv)
 	assert.Equal(t, msgBody2, *rcvBody)
 	replyMsgBody2 := "putget-transaction-reply-2"
@@ -376,10 +376,10 @@ func TestPutGetTransaction(t *testing.T) {
 	// commit; request message is gone, and reply message is available
 	cxErr = transactedContext.Commit()
 	assert.Nil(t, cxErr)
-	rcvBody, errRcv = untransactedReqConsumer.ReceiveStringBodyNoWait()
+	rcvBody, errRcv = untransactedReqConsumer.ReceiveBytesBodyNoWait()
 	assert.Nil(t, errRcv)
 	assert.Nil(t, rcvBody)
-	rcvBody, errRcv = untransactedReplyConsumer.ReceiveStringBodyNoWait()
+	rcvBody, errRcv = untransactedReplyConsumer.ReceiveBytesBodyNoWait()
 	assert.Nil(t, errRcv)
 	assert.Equal(t, replyMsgBody2, *rcvBody)
 

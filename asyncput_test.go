@@ -15,8 +15,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ibm-messaging/mq-golang-jms20/jms20subset"
-	"github.com/ibm-messaging/mq-golang-jms20/mqjms"
+	"github.com/dantedenis/mq-golang-jms20/jms20subset"
+	"github.com/dantedenis/mq-golang-jms20/mqjms"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -53,7 +53,7 @@ func TestAsyncPutSample(t *testing.T) {
 	if consumer != nil {
 		defer consumer.Close()
 	}
-	_, errRvc := consumer.ReceiveStringBodyNoWait()
+	_, errRvc := consumer.ReceiveBytesBodyNoWait()
 	assert.Nil(t, errRvc)
 
 }
@@ -124,7 +124,7 @@ func TestAsyncPutComparison(t *testing.T) {
 	rcvCount := 0
 
 	for !finishedReceiving {
-		rcvTxt, errRvc := consumer.ReceiveStringBodyNoWait()
+		rcvTxt, errRvc := consumer.ReceiveBytesBodyNoWait()
 		assert.Nil(t, errRvc)
 
 		if rcvTxt != nil {
@@ -159,12 +159,12 @@ func TestAsyncPutComparison(t *testing.T) {
 	rcvCount = 0
 
 	for !finishedReceiving {
-		rcvTxt, errRvc := consumer.ReceiveStringBodyNoWait()
+		rcvTxt, errRvc := consumer.ReceiveBytesBodyNoWait()
 		assert.Nil(t, errRvc)
 
 		if rcvTxt != nil {
 			// Check the message bod matches what we expect
-			assert.Equal(t, asyncMsgPrefix+strconv.Itoa(rcvCount), *rcvTxt)
+			assert.Equal(t, asyncMsgPrefix+strconv.Itoa(rcvCount), string(*rcvTxt))
 			rcvCount++
 		} else {
 			finishedReceiving = true
@@ -470,7 +470,7 @@ func TestAsyncPutPersistentTransactedComparison(t *testing.T) {
 	rcvCount := 0
 
 	for !finishedReceiving {
-		rcvTxt, errRvc := consumer.ReceiveStringBodyNoWait()
+		rcvTxt, errRvc := consumer.ReceiveBytesBodyNoWait()
 		assert.Nil(t, errRvc)
 
 		if rcvTxt != nil {
@@ -507,12 +507,12 @@ func TestAsyncPutPersistentTransactedComparison(t *testing.T) {
 	rcvCount = 0
 
 	for !finishedReceiving {
-		rcvTxt, errRvc := consumer.ReceiveStringBodyNoWait()
+		rcvTxt, errRvc := consumer.ReceiveBytesBodyNoWait()
 		assert.Nil(t, errRvc)
 
 		if rcvTxt != nil {
 			// Check the message bod matches what we expect
-			assert.Equal(t, asyncMsgPrefix+strconv.Itoa(rcvCount), *rcvTxt)
+			assert.Equal(t, asyncMsgPrefix+strconv.Itoa(rcvCount), string(*rcvTxt))
 			rcvCount++
 		} else {
 			finishedReceiving = true

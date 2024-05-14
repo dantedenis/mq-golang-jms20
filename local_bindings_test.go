@@ -14,7 +14,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/ibm-messaging/mq-golang-jms20/mqjms"
+	"github.com/dantedenis/mq-golang-jms20/mqjms"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -79,7 +79,7 @@ func TestLocalBindingsConnect(t *testing.T) {
 	// Send a message that will expire after 1 second, then immediately receive it (will not have expired)
 	msgBody := "Local message."
 	context.CreateProducer().SendString(queue, msgBody)
-	rcvBody, rcvErr := consumer.ReceiveStringBodyNoWait()
+	rcvBody, rcvErr := consumer.ReceiveBytesBodyNoWait()
 	assert.Nil(t, rcvErr)
 	assert.NotNil(t, rcvBody)
 	assert.Equal(t, msgBody, *rcvBody)

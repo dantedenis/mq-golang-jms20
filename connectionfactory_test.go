@@ -14,7 +14,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/ibm-messaging/mq-golang-jms20/mqjms"
+	"github.com/dantedenis/mq-golang-jms20/mqjms"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -57,7 +57,7 @@ func TestLoadCFFromJSON(t *testing.T) {
 		log.Fatal(errCons)
 	}
 
-	consumer.ReceiveStringBodyNoWait()
+	consumer.ReceiveBytesBodyNoWait()
 	consumer.Close()
 
 }

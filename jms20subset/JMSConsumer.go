@@ -27,18 +27,6 @@ type JMSConsumer interface {
 	// available. A value of zero or less indicates to wait indefinitely.
 	Receive(waitMillis int32) (Message, JMSException)
 
-	// ReceiveStringBodyNoWait receives the next message for this JMSConsumer
-	// and returns its body as a string. If a message is not immediately
-	// available a nil is returned.
-	ReceiveStringBodyNoWait() (*string, JMSException)
-
-	// ReceiveStringBody returns the body of a message as a string if one is
-	// available. If a message is not immediately available the method will
-	// block for up to the specified number of milliseconds to wait for one
-	// to become available. A value of zero or less indicates to wait
-	// indefinitely.
-	ReceiveStringBody(waitMillis int32) (*string, JMSException)
-
 	// ReceiveBytesBodyNoWait receives the next message for this JMSConsumer
 	// and returns its body as a slice of bytes. If a message is not immediately
 	// available an uninitialized *[]byte is returned.
@@ -51,7 +39,9 @@ type JMSConsumer interface {
 	// indefinitely.
 	ReceiveBytesBody(waitMillis int32) (*[]byte, JMSException)
 
-	// Closes the JMSConsumer in order to free up any resources that were
+	Release()
+
+	// Close the JMSConsumer in order to free up any resources that were
 	// allocated by the provider on behalf of this consumer.
 	Close()
 }

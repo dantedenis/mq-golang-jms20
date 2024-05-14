@@ -12,8 +12,8 @@ package main
 import (
 	"testing"
 
-	"github.com/ibm-messaging/mq-golang-jms20/jms20subset"
-	"github.com/ibm-messaging/mq-golang-jms20/mqjms"
+	"github.com/dantedenis/mq-golang-jms20/jms20subset"
+	"github.com/dantedenis/mq-golang-jms20/mqjms"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -351,7 +351,7 @@ func TestBytesMessageConsumerMixedMessageErrors(t *testing.T) {
 	msgBodyBytes := []byte{'b', 'y', 't', 'e', 's', '1', '2', '3', '4'}
 	errSend := context.CreateProducer().SetTimeToLive(5000).SendBytes(queue, msgBodyBytes)
 	assert.Nil(t, errSend)
-	rcvStr, errRcv := consumer.ReceiveStringBodyNoWait()
+	rcvStr, errRcv := consumer.ReceiveBytesBodyNoWait()
 	assert.Nil(t, rcvStr)
 	assert.Equal(t, "MQJMS6068", errRcv.GetErrorCode())
 	assert.Equal(t, "MQJMS_DIR_MIN_NOTTEXT", errRcv.GetReason())
@@ -359,7 +359,7 @@ func TestBytesMessageConsumerMixedMessageErrors(t *testing.T) {
 	// Send a BytesMessage, try to receive as text with wait.
 	errSend = context.CreateProducer().SetTimeToLive(5000).SendBytes(queue, msgBodyBytes)
 	assert.Nil(t, errSend)
-	rcvStr, errRcv = consumer.ReceiveStringBody(200)
+	rcvStr, errRcv = consumer.ReceiveBytesBody(200)
 	assert.Nil(t, rcvStr)
 	assert.Equal(t, "MQJMS6068", errRcv.GetErrorCode())
 	assert.Equal(t, "MQJMS_DIR_MIN_NOTTEXT", errRcv.GetReason())

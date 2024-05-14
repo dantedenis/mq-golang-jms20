@@ -12,10 +12,10 @@ package main
 import (
 	"testing"
 
-	"github.com/ibm-messaging/mq-golang-jms20/jms20subset"
+	"github.com/dantedenis/mq-golang-jms20/jms20subset"
 	"github.com/ibm-messaging/mq-golang/v5/ibmmq"
 
-	"github.com/ibm-messaging/mq-golang-jms20/mqjms"
+	"github.com/dantedenis/mq-golang-jms20/mqjms"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -78,7 +78,7 @@ func TestMQConnectionOptions(t *testing.T) {
 		assert.NoError(t, errCons)
 
 		// expect that receiving the message will cause an JMS Data Length error
-		_, err := consumer.ReceiveStringBodyNoWait()
+		_, err := consumer.ReceiveBytesBodyNoWait()
 		assert.Error(t, err)
 		jmsErr, ok := err.(jms20subset.JMSExceptionImpl)
 		assert.True(t, ok)
